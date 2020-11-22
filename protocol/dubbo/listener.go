@@ -135,7 +135,7 @@ func (h *RpcClientHandler) OnMessage(session getty.Session, pkg interface{}) {
 	pendingResponse.response.atta = p.Body.(*Response).atta
 
 	if pendingResponse.callback == nil {
-		pendingResponse.done <- struct{}{}
+		close(pendingResponse.done)
 	} else {
 		pendingResponse.callback(pendingResponse.GetCallResponse())
 	}
@@ -156,7 +156,9 @@ func (h *RpcClientHandler) OnCron(session getty.Session) {
 		return
 	}
 
-	h.conn.pool.rpcClient.heartbeat(session)
+	if err := h.conn.pool.rpcClient.heartbeat(session); err != nil {
+		logger.Warnf("failed to send heartbeat, error: %v", err)
+	}
 }
 
 // //////////////////////////////////////////
