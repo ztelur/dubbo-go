@@ -30,12 +30,15 @@ import (
 )
 
 import (
+	etcdv3 "github.com/dubbogo/gost/database/kv/etcd/v3"
+)
+
+import (
 	"github.com/apache/dubbo-go/common"
 	"github.com/apache/dubbo-go/common/constant"
 	"github.com/apache/dubbo-go/common/extension"
 	"github.com/apache/dubbo-go/common/logger"
 	"github.com/apache/dubbo-go/registry"
-	"github.com/apache/dubbo-go/remoting/etcdv3"
 )
 
 const (

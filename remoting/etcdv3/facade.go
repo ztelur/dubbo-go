@@ -23,6 +23,7 @@ import (
 )
 
 import (
+	etcdv3 "github.com/dubbogo/gost/database/kv/etcd/v3"
 	"github.com/apache/dubbo-getty"
 	perrors "github.com/pkg/errors"
 )
@@ -34,8 +35,8 @@ import (
 )
 
 type clientFacade interface {
-	Client() *Client
-	SetClient(*Client)
+	Client() *etcdv3.Client
+	SetClient(*etcdv3.Client)
 	ClientLock() *sync.Mutex
 	WaitGroup() *sync.WaitGroup //for wait group control, etcd client listener & etcd client container
 	Done() chan struct{}        //for etcd client control
@@ -61,7 +62,7 @@ LOOP:
 			// re-register all services
 		case <-r.Client().Done():
 			r.ClientLock().Lock()
-			clientName := RegistryETCDV3Client
+			clientName := etcdv3.RegistryETCDV3Client
 			timeout, _ := time.ParseDuration(r.GetUrl().GetParam(constant.REGISTRY_TIMEOUT_KEY, constant.DEFAULT_REG_TIMEOUT))
 			endpoints := r.Client().endpoints
 			r.Client().Close()
@@ -75,13 +76,13 @@ LOOP:
 				case <-r.Done():
 					logger.Warnf("(ETCDV3ProviderRegistry)reconnectETCDRegistry goroutine exit now...")
 					break LOOP
-				case <-getty.GetTimeWheel().After(timeSecondDuration(failTimes * ConnDelay)): // avoid connect frequent
+				case <-getty.GetTimeWheel().After(timeSecondDuration(failTimes * etcdv3.ConnDelay)): // avoid connect frequent
 				}
-				err = ValidateClient(
+				err = etcdv3.ValidateClient(
 					r,
-					WithName(clientName),
-					WithEndpoints(endpoints...),
-					WithTimeout(timeout),
+					etcdv3.WithName(clientName),
+					etcdv3.WithEndpoints(endpoints...),
+					etcdv3.WithTimeout(timeout),
 				)
 				logger.Infof("ETCDV3ProviderRegistry.validateETCDV3Client(etcd Addr{%s}) = error{%#v}",
 					endpoints, perrors.WithStack(err))
@@ -89,8 +90,8 @@ LOOP:
 					break
 				}
 				failTimes++
-				if MaxFailTimes <= failTimes {
-					failTimes = MaxFailTimes
+				if etcdv3.MaxFailTimes <= failTimes {
+					failTimes = etcdv3.MaxFailTimes
 				}
 			}
 		}

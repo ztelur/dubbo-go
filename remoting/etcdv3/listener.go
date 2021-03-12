@@ -18,12 +18,13 @@
 package etcdv3
 
 import (
+	"github.com/coreos/etcd/clientv3"
 	"sync"
 	"time"
 )
 
 import (
-	"github.com/coreos/etcd/clientv3"
+	etcdv3 "github.com/dubbogo/gost/database/kv/etcd/v3"
 	"github.com/coreos/etcd/mvcc/mvccpb"
 	perrors "github.com/pkg/errors"
 )
@@ -35,14 +36,14 @@ import (
 
 // nolint
 type EventListener struct {
-	client     *Client
+	client     *etcdv3.Client
 	keyMapLock sync.RWMutex
 	keyMap     map[string]struct{}
 	wg         sync.WaitGroup
 }
 
 // NewEventListener returns a EventListener instance
-func NewEventListener(client *Client) *EventListener {
+func NewEventListener(client *etcdv3.Client) *EventListener {
 	return &EventListener{
 		client: client,
 		keyMap: make(map[string]struct{}),
