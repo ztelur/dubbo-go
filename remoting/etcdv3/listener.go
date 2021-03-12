@@ -65,12 +65,12 @@ func (l *EventListener) ListenServiceNodeEvent(key string, listener ...remoting.
 		select {
 
 		// client stopped
-		case <-l.client.Done():
-			logger.Warnf("etcd client stopped")
-			return false
+		//case <-l.client.Close():
+		//	logger.Warnf("etcd client stopped")
+		//	return false
 
 		// client ctx stop
-		case <-l.client.ctx.Done():
+		case <-l.client.Done():
 			logger.Warnf("etcd client ctx cancel")
 			return false
 
@@ -149,9 +149,9 @@ func (l *EventListener) ListenServiceNodeEventWithPrefix(prefix string, listener
 			return
 
 		// client ctx stop
-		case <-l.client.ctx.Done():
-			logger.Warnf("etcd client ctx cancel")
-			return
+		//case <-l.client.ctx.Done():
+		//	logger.Warnf("etcd client ctx cancel")
+		//	return
 
 		// etcd event stream
 		case e, ok := <-wc:
@@ -194,7 +194,7 @@ func (l *EventListener) ListenServiceEvent(key string, listener remoting.DataLis
 	l.keyMap[key] = struct{}{}
 	l.keyMapLock.Unlock()
 
-	keyList, valueList, err := l.client.getChildren(key)
+	keyList, valueList, err := l.client.GetChildrenKVList(key)
 	if err != nil {
 		logger.Warnf("Get new node path {%v} 's content error,message is  {%v}", key, perrors.WithMessage(err, "get children"))
 	}
